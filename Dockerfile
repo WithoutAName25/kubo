@@ -5,7 +5,7 @@ ARG TARGETOS TARGETARCH
 ENV SRC_DIR /kubo
 
 # Download packages first so they can be cached.
-COPY go.mod go.sum $SRC_DIR/
+COPY go.mod go.sum libs/*/go.mod libs/*/go.sum $SRC_DIR/
 RUN cd $SRC_DIR \
   && go mod download
 
