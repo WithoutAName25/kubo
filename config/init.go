@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
+	"os"
 	"time"
 
 	"github.com/ipfs/kubo/core/coreiface/options"
@@ -22,9 +23,15 @@ func Init(out io.Writer, nBitsForKeypair int) (*Config, error) {
 }
 
 func InitWithIdentity(identity Identity) (*Config, error) {
+	autoConnect := os.Getenv("AUTO_CONNECT") != "false"
+
 	bootstrapPeers, err := DefaultBootstrapPeers()
 	if err != nil {
 		return nil, err
+	}
+
+	if !autoConnect {
+		bootstrapPeers = []peer.AddrInfo{}
 	}
 
 	datastore := DefaultDatastoreConfig()
@@ -43,7 +50,7 @@ func InitWithIdentity(identity Identity) (*Config, error) {
 		Identity:  identity,
 		Discovery: Discovery{
 			MDNS: MDNS{
-				Enabled: true,
+				Enabled: autoConnect,
 			},
 		},
 

@@ -2,6 +2,7 @@ package libp2p
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/ipfs/go-datastore"
@@ -90,12 +91,19 @@ func ConstructDefaultRouting(cfg *config.Config, routingOpt RoutingOption) Routi
 // constructDHTRouting is used when Routing.Type = "dht"
 func constructDHTRouting(mode dht.ModeOpt) RoutingOption {
 	return func(args RoutingOptionArgs) (routing.Routing, error) {
+		autoConnect := os.Getenv("AUTO_CONNECT") != "false"
+
 		dhtOpts := []dht.Option{
 			dht.Concurrency(10),
 			dht.Mode(mode),
 			dht.Datastore(args.Datastore),
 			dht.Validator(args.Validator),
 		}
+
+		if !autoConnect {
+			dhtOpts = append(dhtOpts, dht.DisableAutoConnect())
+		}
+
 		if args.OptimisticProvide {
 			dhtOpts = append(dhtOpts, dht.EnableOptimisticProvide())
 		}
